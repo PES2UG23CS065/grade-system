@@ -1,42 +1,29 @@
-#include<stdio.h>
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
 #include "grades.h"
-/*void student(int SRN);
-int main()
-{
-    int SRN;
-    printf("Enter the name : \n 1.Ananya Shet \n 2.Anjali \n 3.Aishwarya \n 4.Tanvi \n 5.Jhanvi \n");
-    student(SRN);
-    return 0;
-}
-*/
-void student(int SRN)
-{
-    printf("-------------------YOUR SCORES---------------\n");
-    switch(SRN)
-    {
-        case 1: printf(" Ananya Shet \n SEM -2 \n Branch - CSE\n");
-            break;
-        case 2: printf(" Anjali \n SEM - 2 \n Branch - CSE\n");
-            break;
-        case 3: printf(" Aishwarya \n SEM -2 \n Branch - AIML\n");
-            break;
-        case 4: printf(" Tanvi \n SEM - 2 \n Branch - EC\n");
-            break;
-        case 5: printf(" Jhanvi \n SEM -2 \n Branch - EC\n");
-            break;
-        default:printf(" No data available\n");
-            break;
 
-    }
+void student(int SRN) {
+    const char *names[] = {"Kiara", "Taniya", "Rinna", "Akash", "Jhanvi"};
     
+    if (SRN >= 1 && SRN <= 5) {
+        printf("-------------------YOUR SCORES---------------\n");
+        printf("%s\n", names[SRN - 1]); // Adjust index for array
+        printf("SEM - 2\n");
+
+        const char *branches[] = {"CSE", "CSE", "CSE", "EC", "EC"};
+        printf("Branch - %s\n", branches[SRN - 1]);
+
+        grade(SRN);
+    } else {
+        printf("No data available\n");
+    }
 }
-int main()
-{
+
+int main() {
     int SRN;
     printf("Enter your SRN:\n");
     scanf("%d", &SRN);
-    //int mar1[10], mar2[10], mar3[10];
     student(SRN);
-    grade(SRN);
     return 0;
 }
