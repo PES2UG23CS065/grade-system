@@ -3,53 +3,171 @@
 #include <string.h>
 #include "grades.h"
 
-void grade(int SRN) {
-    const char *names[] = {"Ananya Shet", "Taniya", "Rinna", "Akash", "Jhanvi"};
-    const char *subjects[] = {"Physics", "Maths", "EEE", "Mech", "C.S", "EVS"};
-    int total_marks = 600; // Total marks for all subjects
-    int total1, total2, total3;
-    int cgpa;
+#define MAX_LINE_LENGTH 200
+#define FILE_PATH "MARKS.csv"
 
-    if (SRN >= 1 && SRN <= 5) {
-        struct Marks *marks_data = (struct Marks *)malloc(5 * sizeof(struct Marks));
-        if (marks_data == NULL) {
-            printf("Memory allocation failed\n");
-            return;
+typedef struct {
+    int srn;
+    char name[50];
+    int isa1[6];
+    int isa2[6];
+    int isa3[6];
+} Student;
+
+void print_student_data(Student student) {
+    printf("|------------------------------------------------------------------------|\n");
+    printf("| SRN: %-64d |\n", student.srn);
+    printf("| NAME: %-64s |\n", student.name);
+    printf("|------------------------------------------------------------------------|\n");
+    printf("| ISA1: PHYSICS | ELECTRICAL | COMPUTERSCIENCE | EVS | MATHS | MECHANICAL |\n");
+    printf("|%12d\t|%12d|%17d|%5d|%7d|%12d|\n", student.isa1[0], student.isa1[1], student.isa1[2], student.isa1[3], student.isa1[4], student.isa1[5]);
+    printf("|------------------------------------------------------------------------|\n");
+    printf("| ISA2: PHYSICS | ELECTRICAL | CS | EVS | MATHS | MECHANICAL |\n");
+    printf("|%12d\t|%12d|%17d|%5d|%7d|%12d|\n", student.isa2[0], student.isa2[1], student.isa2[2], student.isa2[3], student.isa2[4], student.isa2[5]);
+    printf("|------------------------------------------------------------------------|\n");
+    printf("| ISA3: PHYSICS | ELECTRICAL | CS | EVS | MATHS | MECHANICAL |\n");
+    printf("|%12d\t|%12d|%17d|%5d|%7d|%12d|\n", student.isa3[0], student.isa3[1], student.isa3[2], student.isa3[3], student.isa3[4], student.isa3[5]);
+    printf("|------------------------------------------------------------------------|\n");
+
+    int total1 = 0, total2 = 0, total3 = 0;
+    for (int i = 0; i < 6; i++) {
+        total1 += student.isa1[i];
+        total2 += student.isa2[i];
+        total3 += student.isa3[i];
+    }
+    int cgpa = (total1 + total2 + total3) / 180;
+
+    printf("| CGPA: %d                                                         |\n", cgpa);
+    switch(cgpa)
+{
+    case 10: printf("\tGrade :S\n");
+		break;
+   case 9 : printf("\tGrade :A\n");
+ 		break;
+   case 8: printf("\tGrade :B\n");
+		break;
+   case 7 : printf("\tGrade :C\n");
+ 		break;
+   case 6: printf("\tGrade :D\n");
+		break;
+   case 5 : printf("\tGrade :E\n");
+ 		break;
+   default: printf("\tGrade :F");
+		break;
+   }
+
+    printf("|------------------------------------------------------------------------|\n");
+}
+
+void search_student(int SRN) {
+    FILE *fp = fopen("MARKS.csv", "r"); // Open file in read mode
+    if (fp == NULL) {
+        printf("Error opening file.\n");
+        return;
+    }
+
+    char line[MAX_LINE_LENGTH]; // Assuming each line in the CSV file is not longer than 200 characters
+    Student student;
+    int found = 0;
+
+    // Skip header
+    fgets(line, sizeof(line), fp);
+
+    while (fgets(line, sizeof(line), fp) != NULL) {
+        char *token = strtok(line, ",");
+        student.srn = atoi(token); // Assuming SRN is the first column in the CSV file
+
+        if (student.srn == SRN) {
+            // Parse the rest of the student data
+            token = strtok(NULL, ",");
+            strcpy(student.name, token);
+
+            for (int i = 0; i < 6; i++) {
+                student.isa1[i] = atoi(strtok(NULL, ","));
+            }
+            for (int i = 0; i < 6; i++) {
+                student.isa2[i] = atoi(strtok(NULL, ","));
+            }
+            for (int i = 0; i < 6; i++) {
+                student.isa3[i] = atoi(strtok(NULL, ","));
+            }
+
+            found = 1;
+            break;
         }
+    }
 
-        marks_data[0] = (struct Marks){{87, 95, 64, 79, 78, 69}, {78, 89, 87, 90, 69, 70}, {80, 90, 86, 67, 95, 74}};
-        marks_data[1] = (struct Marks){{78, 85, 84, 89, 88, 89}, {74, 89, 59, 67, 89, 89}, {90, 98, 87, 94, 95, 94}};
-        marks_data[2] = (struct Marks){{67, 34, 89, 70, 88, 56}, {80, 49, 22, 58, 49, 50}, {90, 68, 45, 78, 46, 54}};
-        marks_data[3] = (struct Marks){{100, 95, 89, 78, 90, 78}, {65, 89, 52, 67, 59, 46}, {50, 58, 89, 94, 95, 94}};
-        marks_data[4] = (struct Marks){{45, 29, 69, 40, 37, 30}, {50, 37, 47, 57, 39, 50}, {12, 68, 39, 54, 25, 54}};
+    fclose(fp);
 
-        total1 = total2 = total3 = 0;
-
-        struct Marks student_marks = marks_data[SRN - 1]; // Adjust index for array
-
-        for (int i = 0; i < 6; i++) {
-            total1 += student_marks.marks1[i];
-            total2 += student_marks.marks2[i];
-            total3 += student_marks.marks3[i];
-            printf("%s\t\t%d\t%d\t%d\n", subjects[i], student_marks.marks1[i], student_marks.marks2[i], student_marks.marks3[i]);
-        }
-
-        cgpa = (total1 + total2 + total3) / (200); // Assuming total marks for each subject is 100
-        printf("Total\t\t%d\t%d\t%d\nCGPA:%d\n", total1, total2, total3, cgpa);
-
-        // Print grade based on CGPA
-        switch (cgpa) {
-            case 10: printf("\t\tGRADE :- S\n"); break;
-            case 9: printf("\t\tGRADE :- A\n"); break;
-            case 8: printf("\t\tGRADE :- B\n"); break;
-            case 7: printf("\t\tGRADE :- C\n"); break;
-            case 6: printf("\t\tGRADE :- D\n"); break;
-            case 5: printf("\t\tGRADE :- E\n"); break;
-            default: printf("\t\tGRADE :- Fail\n"); break;
-        }
-
-        free(marks_data);
+    if (found) {
+        print_student_data(student);
     } else {
-        printf("NO DATA AVAILABLE\n");
+        printf("Student with SRN %d not found.\n", SRN);
     }
 }
+
+void append_student() {
+    FILE *fp = fopen("MARKS.csv", "a"); // Open in append mode
+    if (fp == NULL) {
+        printf("Error opening file.\n");
+        return;
+    }
+
+    Student student;
+    printf("Enter SRN: ");
+    scanf("%d", &student.srn);
+    printf("Enter Name: ");
+    scanf("%s", student.name);
+
+    printf("Enter ISA1 marks (Physics, Electrical, CS, EVS, Maths, Mechanical): ");
+    for (int i = 0; i < 6; i++) {
+        scanf("%d", &student.isa1[i]);
+    }
+
+    printf("Enter ISA2 marks (Physics, Electrical, CS, EVS, Maths, Mechanical): ");
+    for (int i = 0; i < 6; i++) {
+        scanf("%d", &student.isa2[i]);
+    }
+
+    printf("Enter ISA3 marks (Physics, Electrical, CS, EVS, Maths, Mechanical): ");
+    for (int i = 0; i < 6; i++) {
+        scanf("%d", &student.isa3[i]);
+    }
+
+    // Write to file
+    fprintf(fp, "%d,%s", student.srn, student.name);
+    for (int i = 0; i < 6; i++) {
+        fprintf(fp, ",%d", student.isa1[i]);
+    }
+    for (int i = 0; i < 6; i++) {
+        fprintf(fp, ",%d", student.isa2[i]);
+    }
+    for (int i = 0; i < 6; i++) {
+        fprintf(fp, ",%d", student.isa3[i]);
+    }
+    fprintf(fp, "\n");
+
+    fclose(fp);
+    printf("Student information appended successfully.\n");
+}
+
+int main() {
+    int choice;
+    int SRN;
+
+    printf("Enter 1 to search for a student, 2 to append a new student: ");
+    scanf("%d", &choice);
+
+    if (choice == 1) {
+        printf("Enter your SRN:\n");
+        scanf("%d", &SRN);
+        search_student(SRN);
+    } else if (choice == 2) {
+        append_student();
+    } else {
+        printf("Invalid choice.\n");
+    }
+
+    return 0;
+}
+
